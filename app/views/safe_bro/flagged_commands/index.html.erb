@@ -1,0 +1,22 @@
+<% bro_hub_crumb "Flagged commands" %>
+<%= bro_hub_hero eyebrow: "Flagged commands", title: @total, tone: (:red if @total > 0), subtitle: (@total == 1 ? "command" : "commands"),
+      lead: "Everything that was blocked before it ran, or that ran and looked suspicious. Newest first.",
+      stats: [ [ @blocked_total, "blocked", :red ], [ @total - @blocked_total, "ran, flagged", :amber ] ] %>
+
+<div class="bh-table-wrap">
+  <div class="bh-table" style="--cols: 150px 120px minmax(240px,1.2fr) minmax(200px,1fr) 90px 80px; --min: 940px">
+    <div class="bh-row is-head"><span>When</span><span>User</span><span>Command</span><span>Why</span><span>Outcome</span><span>Session</span></div>
+    <% @commands.each do |command| %>
+      <%= link_to session_path(command.session_id), class: "bh-row bh-edge-red" do %>
+        <span class="bh-tone-violet"><%= safe_bro_time(command.created_at) %></span>
+        <span class="bh-cell-strong"><%= command.session.username %></span>
+        <span style="overflow-wrap:anywhere"><%= truncate(command.statements.to_s, length: 140) %></span>
+        <span class="bh-cell-text"><%= command.flag_reason %></span>
+        <span class="bh-status <%= command.blocked? ? "bh-tone-red" : "bh-tone-amber" %>"><%= command.blocked? ? "Blocked" : "Ran" %></span>
+        <span class="bh-tone-violet">#<%= command.session_id %></span>
+      <% end %>
+    <% end %>
+    <% if @commands.empty? %><div class="bh-empty">Nothing flagged.</div><% end %>
+    <%= safe_bro_pager total: @total, page: @page, noun: "flagged command" %>
+  </div>
+</div>

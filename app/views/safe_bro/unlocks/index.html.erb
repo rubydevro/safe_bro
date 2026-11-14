@@ -1,0 +1,25 @@
+<% bro_hub_crumb "Unlocks" %>
+<%= bro_hub_hero eyebrow: "Unlocks", title: @total, tone: (:amber if @total > 0), subtitle: (@total == 1 ? "unlock" : "unlocks"),
+      lead: "Every time someone unlocked sensitive data, with the reason they gave. Newest first.",
+      stats: [ [ @open_total, "still open", :amber ] ] %>
+
+<div class="bh-table-wrap">
+  <div class="bh-table" style="--cols: 150px 120px 140px minmax(240px,1fr) 90px 80px; --min: 900px">
+    <div class="bh-row is-head"><span>Unlocked</span><span>User</span><span>Scope</span><span>Why</span><span>Commands</span><span>Session</span></div>
+    <% @unlocks.each do |unlock| %>
+      <%= link_to session_path(unlock.session_id), class: "bh-row bh-edge-amber" do %>
+        <span class="bh-tone-violet"><%= safe_bro_time(unlock.started_at) %></span>
+        <span class="bh-cell-strong"><%= unlock.session.username %></span>
+        <span class="bh-tags">
+          <span class="bh-tag is-amber"><%= unlock.resources %></span>
+          <%= content_tag(:span, "open", class: "bh-tag") if unlock.open? %>
+        </span>
+        <span class="bh-cell-text"><%= unlock.justification %></span>
+        <span><%= @command_counts.fetch(unlock.id, 0) %></span>
+        <span class="bh-tone-violet">#<%= unlock.session_id %></span>
+      <% end %>
+    <% end %>
+    <% if @unlocks.empty? %><div class="bh-empty">Nobody unlocked anything.</div><% end %>
+    <%= safe_bro_pager total: @total, page: @page, noun: "unlock" %>
+  </div>
+</div>

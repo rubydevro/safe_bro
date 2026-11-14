@@ -1,0 +1,91 @@
+<% bro_hub_crumb "Console sessions", "##{@session.id}" %>
+<% content_for :bro_hub_crumb_actions do %>
+  <%= bro_hub_crumb_link "← All sessions", root_path(filter_params) %>
+<% end %>
+
+<% flagged_count = @commands.count(&:flagged?) %>
+<%= bro_hub_hero eyebrow: "#{@session.source} · #{@session.hostname} (pid #{@session.pid})",
+      title: "Session ##{@session.id}",
+      subtitle: review_status_text(@session.review_status),
+      lead: safe_join([ content_tag(:strong, @session.username), " was on a console for #{safe_bro_duration(@session.duration)}. Reason given: “#{@session.reason}”" ]) %>
+
+<div class="bh-split">
+  <section class="bh-split-main">
+    <div class="bh-block-head">
+      <h2 class="bh-h2">What they ran</h2>
+      <span class="bh-meta"><%= safe_bro_count(@commands.size, "command") %> · <%= flagged_count %> flagged</span>
+    </div>
+
+    <div class="bh-log">
+      <% if @commands.empty? %><div class="bh-cmd"><div class="bh-cmd-meta"><span>Nothing was typed.</span></div></div><% end %>
+      <% previous_access = nil %>
+      <% @commands.each do |command| %>
+        <% if command.sensitive_access && command.sensitive_access != previous_access %>
+          <div class="bh-unlock">
+            <span style="text-transform:uppercase">Unlocked</span> (<%= command.sensitive_access.resources %>) at <%= safe_bro_time(command.sensitive_access.started_at) %>:
+            “<%= command.sensitive_access.justification %>”
+          </div>
+        <% elsif command.sensitive_access.nil? && previous_access %>
+          <div class="bh-cmd"><div class="bh-cmd-meta"><span>Locked again</span></div></div>
+        <% end %>
+        <% previous_access = command.sensitive_access %>
+        <div class="bh-cmd <%= "is-flagged is-#{command.status}" if command.flagged? %> <%= "is-unlocked" if command.sensitive_access && !command.flagged? %> <%= "is-sensitive" if command.sensitive_access %>">
+          <div class="bh-cmd-meta">
+            <%= safe_bro_time(command.created_at) %>
+            <%= command_flag(command) %>
+            <% if command.flag_reason.present? %><span class="bh-note"><%= command.flag_reason %></span><% end %>
+          </div>
+          <pre class="bh-cmd-code"><%= command.statements %></pre>
+        </div>
+      <% end %>
+    </div>
+  </section>
+
+  <div class="bh-split-aside">
+    <section class="bh-block">
+      <h2 class="bh-h2">Details</h2>
+      <dl class="bh-dl">
+        <dt>User</dt><dd><%= @session.username %></dd>
+        <dt>Reason</dt><dd><%= @session.reason %></dd>
+        <dt>Started</dt><dd><%= safe_bro_time(@session.started_at) %></dd>
+        <dt>Ended</dt><dd><%= @session.ended_at ? safe_bro_time(@session.ended_at) : "still open, or ended abruptly" %></dd>
+        <dt>Source</dt><dd><%= @session.source %></dd>
+        <dt>Host</dt><dd><%= @session.hostname %> (pid <%= @session.pid %>)</dd>
+        <dt>Unlocks</dt><dd class="bh-tone-amber"><%= @session.sensitive_accesses.size %></dd>
+        <dt>Flagged</dt><dd class="bh-tone-red"><%= flagged_count %></dd>
+      </dl>
+    </section>
+
+    <section class="bh-block">
+      <h2 class="bh-h2">Verdict</h2>
+      <% if @can_audit_this %>
+        <%= form_with url: session_audits_path(@session), scope: :audit do |form| %>
+          <% filter_params.each do |key, value| %>
+            <%= hidden_field_tag(key == :status ? :filter_status : key, value) %>
+          <% end %>
+          <div class="bh-seg">
+            <label class="is-ok"><%= form.radio_button :status, "approved", checked: true %><span>Appropriate</span></label>
+            <label class="is-bad"><%= form.radio_button :status, "flagged" %><span>Flag</span></label>
+          </div>
+          <label class="bh-field" style="margin-top:22px">Notes
+            <%= form.text_area :notes, rows: 4, class: "bh-textarea" %>
+          </label>
+          <div class="bh-hint">Required when flagging. Stored encrypted.</div>
+          <%= form.submit "Save and next", class: "bh-btn", style: "margin-top:20px" %>
+        <% end %>
+      <% else %>
+        <p class="bh-hint">This is your own session. Someone else has to review it.</p>
+      <% end %>
+
+      <% if @audits.any? %>
+        <h2 class="bh-h2" style="margin-top:32px">History</h2>
+        <dl class="bh-dl">
+          <% @audits.each do |audit| %>
+            <dt><%= review_status_text(audit.status == "approved" ? "approved" : audit.status) %></dt>
+            <dd><%= audit.auditor %> <span class="bh-cell-muted"><%= safe_bro_time(audit.created_at) %></span><br><%= audit.notes %></dd>
+          <% end %>
+        </dl>
+      <% end %>
+    </section>
+  </div>
+</div>

@@ -1,0 +1,53 @@
+<% bro_hub_crumb "Rules" %>
+<% protected_now = @config.enabled? %>
+<%= bro_hub_hero eyebrow: "Effective configuration · read only", title: "Rules", subtitle: (protected_now ? "active here" : "off here"),
+      tone: (protected_now ? :green : :muted),
+      lead: "What SafeBro locks, blocks and flags right now. Change it in config/initializers/safe_bro.rb." %>
+
+<% tags = ->(values, tone = nil) {
+     values.any? ? tag.div(safe_join(values.map { |value| tag.span(safe_bro_rule(value), class: [ "bh-tag", tone ].compact.join(" "), style: "text-transform:none") }, " "), class: "bh-tags") : tag.span("none", class: "bh-cell-muted")
+   } %>
+
+<div class="bh-split">
+  <section class="bh-split-main">
+    <h2 class="bh-h2">Locked until <code>unlock!</code></h2>
+    <dl class="bh-dl">
+      <dt>Resources</dt><dd><%= tags.call(@config.protected_resources, "is-amber") %></dd>
+      <dt>ENV names</dt><dd><%= tags.call(@config.protected_env_patterns) %></dd>
+      <dt>Files</dt><dd><%= tags.call(@config.protected_file_patterns) %></dd>
+      <dt>Systems</dt><dd><%= tags.call(@protected_hosts) %></dd>
+    </dl>
+
+    <h2 class="bh-h2" style="margin-top:36px">Blocked before it runs</h2>
+    <dl class="bh-dl">
+      <dt>Can't reopen</dt><dd><%= tags.call(@config.forbidden_reopening, "is-red") %></dd>
+      <dt>Never referenced</dt><dd><%= tags.call(Array(@config.forbidden_constants[:always]), "is-red") %></dd>
+      <dt>While locked</dt><dd><%= tags.call(Array(@config.forbidden_constants[:locked]), "is-red") %></dd>
+      <dt>Can't be called</dt><dd><%= tags.call(@config.forbidden_methods, "is-red") %></dd>
+    </dl>
+
+    <h2 class="bh-h2" style="margin-top:36px">Flagged when mentioned</h2>
+    <%= tags.call(@config.suspicious_terms, "is-amber") %>
+  </section>
+
+  <div class="bh-split-aside">
+    <section class="bh-block">
+      <h2 class="bh-h2">Where it runs</h2>
+      <dl class="bh-dl">
+        <dt>Environments</dt><dd><%= @config.protected_environments.join(", ") %></dd>
+        <dt>Forced</dt><dd><%= @config.enabled.nil? ? "no" : @config.enabled ? "on" : "off" %></dd>
+        <dt>Runners</dt><dd><%= @config.audit_runner ? "recorded" : "not recorded" %></dd>
+        <dt>Ask for a name</dt><dd><%= @config.ask_for_username_if_empty ? "yes" : "no, console refuses to start" %></dd>
+      </dl>
+    </section>
+    <section class="bh-block">
+      <h2 class="bh-h2">Review</h2>
+      <dl class="bh-dl">
+        <dt>Keep sessions</dt><dd><%= @config.retention ? distance_of_time_in_words(@config.retention) : "forever" %></dd>
+        <dt>Keep flagged</dt><dd><%= @config.keep_flagged ? "yes, even past that" : "no" %></dd>
+        <dt>Self review</dt><dd><%= @config.allow_self_audit ? "allowed" : "not allowed" %></dd>
+        <dt>Require SSL</dt><dd><%= @config.require_ssl ? "yes" : "no" %></dd>
+      </dl>
+    </section>
+  </div>
+</div>

@@ -1,0 +1,51 @@
+<% status = @filter[:status] || "all" %>
+<% bro_hub_crumb "Console sessions" %>
+<% content_for :bro_hub_crumb_actions do %>
+  <% [ [ "Pending", "pending" ], [ "Appropriate", "approved" ], [ "Flagged", "flagged" ], [ "All", "all" ] ].each do |label, value| %>
+    <%= bro_hub_crumb_link label, root_path(@filter.merge(status: value)), active: status == value %>
+  <% end %>
+<% end %>
+
+<%= bro_hub_hero eyebrow: "Console sessions",
+      title: @total,
+      tone: { "approved" => :green, "flagged" => :red }[status],
+      subtitle: { "pending" => "awaiting a verdict", "approved" => "approved", "flagged" => "flagged" }.fetch(status, @total == 1 ? "session" : "sessions"),
+      lead: "Who used a console, why, and what they did. Review each one: approve it or flag it.",
+      stats: [ [ @unlock_total, "unlocks", :amber ], [ @flag_total, "flagged commands", :red ] ] %>
+
+<%= form_with url: root_path, method: :get, class: "bh-filters" do %>
+  <%= hidden_field_tag :status, status %>
+  <%= text_field_tag :username, @filter[:username], placeholder: "Filter by user", class: "bh-input is-strong", "aria-label": "Filter by user" %>
+  <label class="bh-field">From <%= date_field_tag :from, @filter[:from], class: "bh-input" %></label>
+  <label class="bh-field">To <%= date_field_tag :to, @filter[:to], class: "bh-input" %></label>
+  <% attention = @filter[:attention] == "1" %>
+  <%= link_to "Needs attention only", root_path(@filter.merge(status: status, attention: (attention ? nil : "1"))),
+        class: [ "bh-chip", ("is-on" if attention) ], title: "Unlocked sensitive data or flagged commands" %>
+  <%= hidden_field_tag :attention, "1" if attention %>
+  <%= submit_tag "Filter", name: nil, class: "bh-chip" %>
+  <%= link_to "Reset", root_path(status: status), class: "bh-link-quiet" %>
+<% end %>
+
+<div class="bh-table-wrap">
+  <div class="bh-table" style="--cols: 150px 120px minmax(220px,1fr) 80px 64px 200px 110px; --min: 920px">
+    <div class="bh-row is-head"><span>Started</span><span>User</span><span>Reason</span><span>Source</span><span>Length</span><span>Flags</span><span>Review</span></div>
+    <% @sessions.each do |session| %>
+      <% unlocked = @unlock_counts.fetch(session.id, 0) %>
+      <% flagged = @flag_counts.fetch(session.id, 0) %>
+      <%= link_to session_path(session, @filter), class: [ "bh-row", ("bh-edge-red" if flagged > 0), ("bh-edge-amber" if flagged.zero? && unlocked > 0) ] do %>
+        <span class="bh-tone-violet"><%= safe_bro_time(session.started_at) %></span>
+        <span class="bh-cell-strong"><%= session.username %></span>
+        <span class="bh-cell-text"><%= truncate(session.reason, length: 90) %></span>
+        <span class="bh-cell-muted"><%= session.source %></span>
+        <span><%= safe_bro_duration(session.duration) %><%= " (open)" if session.open? %></span>
+        <span class="bh-tags">
+          <%= content_tag(:span, safe_bro_count(unlocked, "unlock"), class: "bh-tag is-amber") if unlocked > 0 %>
+          <%= content_tag(:span, "#{flagged} flagged", class: "bh-tag is-red") if flagged > 0 %>
+        </span>
+        <%= review_status_text(session.review_status) %>
+      <% end %>
+    <% end %>
+    <% if @sessions.empty? %><div class="bh-empty">Nothing to review.</div><% end %>
+    <%= safe_bro_pager total: @total, page: @page, noun: "session" %>
+  </div>
+</div>
