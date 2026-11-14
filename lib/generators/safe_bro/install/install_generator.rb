@@ -13,7 +13,7 @@ module SafeBro
       desc "Sets up the BroHub dashboard (the review UI lives in it), adds the SafeBro initializer and copies the migrations."
 
       def copy_initializer
-        copy_file "safe_bro.rb", "config/initializers/safe_bro.rb"
+        copy_config_once "safe_bro.rb", "config/initializers/safe_bro.rb"
       end
 
       def copy_migrations

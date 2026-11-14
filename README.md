@@ -200,6 +200,19 @@ Not covered: `rails dbconsole`, a raw `psql`/`mysql` session, other process mana
 - `rails runner` sessions can be recorded; notifications are `ActiveSupport::Notifications`.
 - Not carried over: Pry and other console support (SafeBro hooks IRB only).
 
+## Switching from console1984 + audits1984
+
+1. **Don't run both.** Both hook IRB at startup and would record every command twice, so remove `console1984` and
+   `audits1984` from the Gemfile when you add `safe_bro`, and remove their mount (`mount Audits1984::Engine`) and
+   initializer settings. `bin/rails g bro_hub:install --remove-direct-mounts` only retires SafeBro/EnvBro mounts, so do this by hand.
+2. **Existing audit data stays where it is.** SafeBro uses its own `safe_bro_*` tables and doesn't read console1984's
+   (`console1984_*`, `audits1984_*`). Nothing is migrated: the old sessions can't be reviewed in SafeBro's UI.
+   Keep the old tables (read them from a console or SQL) for as long as you need the history, then drop them in a migration.
+   Sessions already encrypted with Active Record Encryption need those keys for as long as you keep them.
+3. Map the settings: console1984's `protected_environments` → the same option in SafeBro
+   in `config/initializers/safe_bro.rb`; audits1984's auditor check → `config.can_audit`.
+4. Set `CONSOLE_USER` for everyone (see above), then run `bin/rails g safe_bro:install` and `bin/rails db:migrate`.
+
 ## Development
 
 ```sh
