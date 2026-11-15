@@ -27,5 +27,5 @@ Gem::Specification.new do |spec|
   # Console commands (unlock!/lock!) use the IRB::Command API introduced in irb 1.13.
   spec.add_dependency "irb", ">= 1.13"
   # The review UI lives inside BroHub's shared shell.
-  spec.add_dependency "bro_hub", ">= 0.1.1"
+  spec.add_dependency "bro_hub", ">= 0.1.2"
 end

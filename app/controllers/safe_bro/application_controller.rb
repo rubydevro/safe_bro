@@ -1,9 +1,7 @@
 module SafeBro
   class ApplicationController < SafeBro.config.parent_controller.constantize
-    include BroHub::Layout
+    include BroHub::ControllerBase
     bro_hub_section :safe_bro
-
-    protect_from_forgery with: :exception
 
     before_action :safe_bro_require_ssl
     before_action :safe_bro_no_store
