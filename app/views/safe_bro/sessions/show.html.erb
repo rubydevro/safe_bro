@@ -50,6 +50,7 @@
         <dt>Started</dt><dd><%= safe_bro_time(@session.started_at) %></dd>
         <dt>Ended</dt><dd><%= @session.ended_at ? safe_bro_time(@session.ended_at) : "still open, or ended abruptly" %></dd>
         <dt>Source</dt><dd><%= @session.source %></dd>
+        <dt>From</dt><dd><%= @session.client_ip || "unknown" %><% other_ips = SafeBro::Session.where(username: @session.username).where.not(client_ip: [ nil, @session.client_ip ]).distinct.limit(5).pluck(:client_ip) %><% if other_ips.any? %> <span class="bh-cell-muted">(this user has also come from <%= other_ips.to_sentence %>)</span><% end %></dd>
         <dt>Host</dt><dd><%= @session.hostname %> (pid <%= @session.pid %>)</dd>
         <dt>Unlocks</dt><dd class="bh-tone-amber"><%= @session.sensitive_accesses.size %></dd>
         <dt>Flagged</dt><dd class="bh-tone-red"><%= flagged_count %></dd>

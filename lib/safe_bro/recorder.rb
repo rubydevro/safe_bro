@@ -4,10 +4,10 @@ module SafeBro
   class Recorder
     attr_reader :session, :sensitive_access
 
-    def start_session(username:, reason:, source: "console")
+    def start_session(username:, reason:, source: "console", client_ip: nil)
       quietly do
         @session = Session.create!(
-          username: username, reason: reason, source: source,
+          username: username, reason: reason, source: source, client_ip: client_ip,
           hostname: Socket.gethostname, pid: Process.pid, started_at: Time.current
         )
       end

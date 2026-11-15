@@ -21,6 +21,11 @@ module SafeBro
     # Ask on the terminal when the resolver returns nothing (otherwise the console refuses to start).
     attr_accessor :ask_for_username_if_empty
 
+    # -> { "203.0.113.7" } Where the person connected from, stored with each session. The default reads
+    # CONSOLE_CLIENT_IP (set it where you trust it, e.g. your console wrapper from $SSH_CLIENT), then
+    # SSH_CLIENT / SSH_CONNECTION. Values that aren't an IP address are ignored.
+    attr_accessor :client_ip_resolver
+
     # --- What is protected ---------------------------------------------------------------
 
     # Which resources need unlock! (see Shield::RESOURCES).
@@ -91,6 +96,7 @@ module SafeBro
 
       @username_resolver = -> { ENV["CONSOLE_USER"] }
       @ask_for_username_if_empty = false
+      @client_ip_resolver = -> { ENV["CONSOLE_CLIENT_IP"].presence || ENV["SSH_CLIENT"].to_s.split.first || ENV["SSH_CONNECTION"].to_s.split.first }
 
       @protected_resources = %i[ encrypted_data credentials env files network ]
       @protected_urls = []

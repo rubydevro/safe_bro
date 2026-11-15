@@ -18,6 +18,10 @@ SafeBro.configure do |config|
   # config.username_resolver = -> { ENV["CONSOLE_USER"] }
   # config.ask_for_username_if_empty = false
 
+  # Where the person connected from, stored with the session. Default: CONSOLE_CLIENT_IP, then SSH_CLIENT.
+  # Inside a container pass it in, e.g. `docker run -e CONSOLE_CLIENT_IP="${SSH_CLIENT%% *}" ...`.
+  # config.client_ip_resolver = -> { ENV["CONSOLE_CLIENT_IP"] }
+
   # --- What is protected until someone runs unlock! ---------------------------------------
   # config.protected_resources = %i[ encrypted_data credentials env files network ]
   # config.protected_urls = [ "redis://cache.internal:6379", "https://search.internal:9200" ]

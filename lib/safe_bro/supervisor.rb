@@ -1,3 +1,5 @@
+require "ipaddr"
+
 module SafeBro
   # Entry point for a console (or runner) process: installs the protections once, then
   # identifies the person, asks why, and opens a session.
@@ -28,7 +30,7 @@ module SafeBro
       Terminal.say(SafeBro.config.welcome_message, :yellow) if interactive
       username ||= current_username
       reason ||= session_reason(username)
-      SafeBro.recorder.start_session(username: username, reason: reason, source: source)
+      SafeBro.recorder.start_session(username: username, reason: reason, source: source, client_ip: current_client_ip)
       at_exit { stop }
     end
 
@@ -40,6 +42,14 @@ module SafeBro
       SafeBro.config.username_resolver.call.to_s.strip.presence ||
         (SafeBro.config.ask_for_username_if_empty && Terminal.interactive? && Terminal.ask("Please, enter your name:")) ||
         raise(MissingUsername)
+    end
+
+    # nil when unknown or not an IP address, so a bad value can't put junk into the audit trail.
+    def current_client_ip
+      ip = SafeBro.config.client_ip_resolver&.call.to_s.strip
+      IPAddr.new(ip).to_s if ip.present?
+    rescue IPAddr::Error
+      nil
     end
 
     private

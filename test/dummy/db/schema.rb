@@ -56,6 +56,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_11_14_000002) do
     t.datetime "ended_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "client_ip"
     t.index ["review_status", "started_at"], name: "index_safe_bro_sessions_on_review_status_and_started_at"
     t.index ["started_at"], name: "index_safe_bro_sessions_on_started_at"
     t.index ["username", "started_at"], name: "index_safe_bro_sessions_on_username_and_started_at"

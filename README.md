@@ -189,6 +189,12 @@ If you need a boundary, build it outside Ruby:
 
 Not covered: `rails dbconsole`, a raw `psql`/`mysql` session, other process managers or shells, and Pry (SafeBro hooks IRB).
 
+### Where they connected from
+
+SafeBro stores the client IP with each session and shows it on the session page, with a note when the same user has also come from other addresses. It reads `CONSOLE_CLIENT_IP`, then `SSH_CLIENT` / `SSH_CONNECTION` (set by sshd, so a user can't change them), and ignores anything that isn't an IP address. Behind a wrapper that starts a container, pass it in: `docker run -e CONSOLE_USER -e CONSOLE_CLIENT_IP="${SSH_CLIENT%% *}" ...`. Or set `config.client_ip_resolver`. It is the NAT or VPN address, not necessarily the person's machine.
+
+Upgrading from 0.1.x: `bin/rails safe_bro:install:migrations && bin/rails db:migrate`.
+
 ## Differences from console1984 + audits1984
 
 - One gem, one engine, one migration set (no shared base-model coupling between two gems), and a UI that plugs into the same dashboard as the other Bro gems.
