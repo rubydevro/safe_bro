@@ -9,6 +9,7 @@ module SafeBro
         name: "SafeBro", label: "SafeBro · audit", accent: :red, order: 10,
         engine: "SafeBro::Engine",
         visible_to: ->(user) { SafeBro.config.can_audit.call(user) },
+        audit_visible_to: ->(user) { SafeBro.config.can_audit.call(user) },
         items: [
           { label: "Sessions", path: "/", match: %r{\A/(sessions(/|\z)|\z)}, badge: -> { SafeBro::Session.review_pending.count } },
           { label: "Flagged commands", path: "/flagged" },

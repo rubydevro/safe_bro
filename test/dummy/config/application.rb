@@ -16,6 +16,9 @@ module Dummy
     config.action_controller.include_all_helpers = false
     config.autoload_lib(ignore: %w[assets tasks])
 
+    # test_helper loads the schema itself, and BroHub's audit table (BroHub::Testing.load_schema).
+    config.active_record.maintain_test_schema = false
+
     # Active Record encryption, to test the encrypted_data protection.
     config.active_record.encryption.primary_key = "test-primary-key-for-safe-bro-dummy"
     config.active_record.encryption.deterministic_key = "test-deterministic-key-for-dummy"

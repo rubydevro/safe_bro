@@ -1,9 +1,10 @@
 module SafeBro
   module Guards
     # Every statement ActiveRecord runs goes through the adapter's #log. A command that
-    # mentions SafeBro's tables (to read, change or delete the audit trail) is stopped here.
+    # mentions SafeBro's tables (or BroHub's audit table) (to read, change or delete the audit trail) is stopped here.
     module SqlGuard
-      TABLES = /safe_bro_(sessions|sensitive_accesses|commands|audits)/i
+      # The audit table every Bro gem shares holds SafeBro's key moments too.
+      TABLES = /safe_bro_(sessions|sensitive_accesses|commands|audits)|bro_hub_audit_events/i
 
       private
         def log(sql, *args, **kwargs, &block)

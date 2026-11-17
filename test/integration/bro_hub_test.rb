@@ -26,6 +26,21 @@ class BroHubIntegrationTest < ActionDispatch::IntegrationTest
     assert_redirected_to "/bro_hub/safe_bro"
   end
 
+  test "SafeBro's key moments are in BroHub's audit log, for auditors only" do
+    SafeBro.recorder.start_session(username: "alice", reason: "fix invoice")
+    SafeBro.recorder.finish_session
+
+    sign_in_as "auditor"
+    get "/bro_hub/audit"
+    assert_response :success
+    assert_select "a.bh-row", /Session started/
+    assert_select "a.bh-row", /alice/
+
+    sign_in_as "staff"
+    get "/bro_hub/audit"
+    assert_response :forbidden
+  end
+
   test "SafeBro renders inside the shell with its own sidebar section" do
     make_session
     sign_in_as "auditor"

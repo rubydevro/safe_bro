@@ -3,7 +3,6 @@ source "https://rubygems.org"
 gemspec path: ".."
 
 # Until bro_hub is published.
-gem "bro_hub", path: "../../bro_hub"
 
 gem "rails", "~> 7.1.0"
 gem "sqlite3", "~> 1.7"

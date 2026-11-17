@@ -4,7 +4,6 @@ source "https://rubygems.org"
 gemspec
 
 # Until bro_hub is published.
-gem "bro_hub", path: "../bro_hub"
 
 gem "puma"
 

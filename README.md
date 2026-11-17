@@ -193,7 +193,11 @@ Not covered: `rails dbconsole`, a raw `psql`/`mysql` session, other process mana
 
 SafeBro stores the client IP with each session and shows it on the session page, with a note when the same user has also come from other addresses. It reads `CONSOLE_CLIENT_IP`, then `SSH_CLIENT` / `SSH_CONNECTION` (set by sshd, so a user can't change them), and ignores anything that isn't an IP address. Behind a wrapper that starts a container, pass it in: `docker run -e CONSOLE_USER -e CONSOLE_CLIENT_IP="${SSH_CLIENT%% *}" ...`. Or set `config.client_ip_resolver`. It is the NAT or VPN address, not necessarily the person's machine.
 
-Upgrading from 0.1.x: `bin/rails safe_bro:install:migrations && bin/rails db:migrate`.
+### Shared audit log
+
+Sessions, commands and unlocks stay in SafeBro's own tables. The key moments (a session starting, an unlock with its justification, a flagged command, an auditor's verdict) are also written to BroHub's shared audit table, so they show up in BroHub's combined audit log next to EnvBro and CacheBro. Commands, their output and auditors' notes are never copied there. Writing it is best effort: if BroHub's migration hasn't run, consoles still open and SafeBro's own tables are still written. The console can't read or change the shared table either (it is covered by the same guard as SafeBro's tables).
+
+Upgrading from 0.2.x or earlier: `bundle update safe_bro`, then `bin/rails g bro_hub:install` (copies BroHub's audit table migration; SafeBro's own tables are unchanged) and `bin/rails db:migrate`. From 0.1.x also run `bin/rails safe_bro:install:migrations` first.
 
 ## Differences from console1984 + audits1984
 

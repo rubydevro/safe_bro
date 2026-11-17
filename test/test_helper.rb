@@ -7,6 +7,9 @@ require "rails/test_help"
 # Load the dummy schema into the test database on every run (cheap with SQLite).
 ActiveRecord::Schema.verbose = false
 load File.expand_path("dummy/db/schema.rb", __dir__)
+# BroHub's audit table, which SafeBro writes its key moments to.
+require "bro_hub/testing"
+BroHub::Testing.load_schema
 
 # Installs the guards process-wide. They do nothing unless a console command is executing.
 SafeBro.config.protected_urls = [ "tcp://127.0.0.1:9" ]
@@ -15,6 +18,7 @@ SafeBro::Terminal.muted = true
 
 class ActiveSupport::TestCase
   setup do
+    BroHub::AuditEvent.delete_all
     SafeBro::Audit.delete_all
     SafeBro::Command.delete_all
     SafeBro::SensitiveAccess.delete_all

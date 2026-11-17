@@ -6,9 +6,15 @@ class SafeBro::Generators::InstallGeneratorTest < Rails::Generators::TestCase
   destination File.expand_path("../../tmp/generator_test", __dir__)
 
   setup do
+    BroHub::Testing.record_rails_commands.clear
     prepare_destination
     FileUtils.mkdir_p File.join(destination_root, "config")
     File.write(File.join(destination_root, "config/routes.rb"), "Rails.application.routes.draw do\nend\n")
+  end
+
+  test "BroHub's installer copies the shared audit table migration" do
+    run_install
+    assert_equal [ "bro_hub:install:migrations" ], BroHub::Testing::RAILS_COMMANDS
   end
 
   test "creates the initializer with nobody allowed to audit" do
@@ -44,7 +50,8 @@ class SafeBro::Generators::InstallGeneratorTest < Rails::Generators::TestCase
   end
 
   private
-    # Migrations are copied by the engine's rake task, which needs a real host app.
+    # SafeBro's own migrations are copied by the engine's rake task, which needs a real host app.
+    # BroHub's installer is covered by BroHub::Testing.record_rails_commands.
     def run_install(*args)
       install = generator([], args, destination_root: destination_root)
       def install.copy_migrations; end

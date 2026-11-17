@@ -14,6 +14,7 @@ module SafeBro
     validates :notes, presence: true, if: :flagged?
 
     after_create { session.update!(review_status: status) }
+    after_create { Trail.record(:session_reviewed, session: session, user: auditor, status: status, session_user: session.username) }
     after_create { SafeBro.notify(:session_flagged, session: session, auditor: auditor, notes: notes) if flagged? }
   end
 end

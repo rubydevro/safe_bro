@@ -10,6 +10,7 @@ module SafeBro
           username: username, reason: reason, source: source, client_ip: client_ip,
           hostname: Socket.gethostname, pid: Process.pid, started_at: Time.current
         )
+        Trail.record(:session_started, session: @session, reason: reason, via: source)
       end
       SafeBro.notify(:session_started, session: @session)
       @session
@@ -32,6 +33,7 @@ module SafeBro
         @sensitive_access = session.sensitive_accesses.create!(
           resources: resources.join(","), justification: justification, started_at: Time.current
         )
+        Trail.record(:sensitive_unlocked, session: session, reason: justification, resources: resources.map(&:to_s))
       end
       SafeBro.notify(:unlocked, session: session, access: @sensitive_access)
       @sensitive_access
@@ -52,7 +54,10 @@ module SafeBro
     end
 
     def flag(command, status, reason)
-      quietly { command.update!(status: status, flag_reason: reason) }
+      quietly do
+        command.update!(status: status, flag_reason: reason)
+        Trail.record(:command_flagged, session: session, reason: reason, status: status.to_s, command_id: command.id)
+      end
       SafeBro.notify(:command_flagged, session: session, command: command, status: status, reason: reason)
       command
     end

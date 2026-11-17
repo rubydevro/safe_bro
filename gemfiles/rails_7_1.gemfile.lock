@@ -1,14 +1,8 @@
 PATH
-  remote: ../bro_hub
-  specs:
-    bro_hub (0.1.0)
-      rails (>= 7.1)
-
-PATH
   remote: .
   specs:
-    safe_bro (0.1.0)
-      bro_hub (>= 0.1)
+    safe_bro (0.3.0)
+      bro_hub (>= 0.2.0)
       irb (>= 1.13)
       rails (>= 7.1)
 
@@ -98,6 +92,8 @@ GEM
     base64 (0.3.0)
     benchmark (0.5.0)
     bigdecimal (4.1.3)
+    bro_hub (0.2.0)
+      rails (>= 7.1)
     builder (3.3.0)
     cgi (0.5.2)
     concurrent-ruby (1.3.8)
@@ -265,7 +261,6 @@ PLATFORMS
   arm64-darwin-25
 
 DEPENDENCIES
-  bro_hub!
   puma
   rubocop-rails-omakase
   safe_bro!
@@ -287,7 +282,7 @@ CHECKSUMS
   base64 (0.3.0) sha256=27337aeabad6ffae05c265c450490628ef3ebd4b67be58257393227588f5a97b
   benchmark (0.5.0) sha256=465df122341aedcb81a2a24b4d3bd19b6c67c1530713fd533f3ff034e419236c
   bigdecimal (4.1.3) sha256=61ebe1e5e559bdc3cc6f2c0ee7f427321fc838f59611c294356eb04d6e21cf66
-  bro_hub (0.1.0)
+  bro_hub (0.2.0) sha256=46ab7a0b138fd085c6b8e447b5fa06ed2d0952dc738ce9c69ab1642844dc6043
   builder (3.3.0) sha256=497918d2f9dca528fdca4b88d84e4ef4387256d984b8154e9d5d3fe5a9c8835f
   bundler (4.0.22) sha256=d8d5ec84c8555e0af71db63ed7aee4d1a8fb839ec46d84212d61979242a5d75a
   cgi (0.5.2) sha256=61ca30298171190fd4fa0d8018e57ada456eae9b7a2b78526debf7f0a0e6f8bb
@@ -348,7 +343,7 @@ CHECKSUMS
   rubocop-rails (2.38.0)
   rubocop-rails-omakase (1.1.0)
   ruby-progressbar (1.13.0)
-  safe_bro (0.1.0)
+  safe_bro (0.3.0)
   securerandom (0.4.1) sha256=cc5193d414a4341b6e225f0cb4446aceca8e50d5e1888743fac16987638ea0b1
   sqlite3 (1.7.3) sha256=fa77f63c709548f46d4e9b6bb45cda52aa3881aa12cc85991132758e8968701c
   thor (1.5.0) sha256=e3a9e55fe857e44859ce104a84675ab6e8cd59c650a49106a05f55f136425e73

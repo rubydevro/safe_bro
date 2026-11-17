@@ -73,7 +73,7 @@ class ExecutorTest < ActiveSupport::TestCase
   test "the audit trail can't be touched from the console" do
     with_session do |session|
       original = session.commands.create!(statements: "x")
-      %w[ safe_bro_commands safe_bro_sessions safe_bro_audits safe_bro_sensitive_accesses ].each do |table|
+      %w[ safe_bro_commands safe_bro_sessions safe_bro_audits safe_bro_sensitive_accesses bro_hub_audit_events ].each do |table|
         assert_raises(SafeBro::TamperingAttempt) { typed "ActiveRecord::Base.connection.execute('DELETE FROM #{table}')" }
         assert_raises(SafeBro::TamperingAttempt) { typed "ActiveRecord::Base.connection.select_all('SELECT * FROM #{table}')" }
       end
